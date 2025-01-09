@@ -11,12 +11,23 @@ function index(req, res) {
 
 function show(req, res) {
   const id = req.params.id;
-  const sql = "SELECT * FROM posts WHERE id = ?";
-  connection.query(sql, [id], (err, results) => {
+  const sql1 = "SELECT * FROM posts WHERE id = ?";
+  const sql2 =
+    "SELECT tags.* FROM posts JOIN post_tag ON post_tag.post_id = posts.id JOIN tags ON tags.id = post_tag.tag_id WHERE posts.id = ?";
+
+  connection.query(sql1, [id], (err, results) => {
     if (err) return res.status(500).json({ error: "Database query failed" });
     if (results.length === 0)
       return res.status(404).json({ error: "Posts not found" });
-    res.json(results[0]);
+
+    const post = results[0];
+    connection.query(sql2, [id], (err, results) => {
+      if (err) return res.status(500).json({ error: "Database query failed" });
+      if (results.length === 0)
+        return res.status(404).json({ error: "Tags not found" });
+      post.tags = results;
+      res.json(post);
+    });
   });
 }
 
