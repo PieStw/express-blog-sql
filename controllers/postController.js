@@ -1,15 +1,12 @@
-const posts = require("./../data/postDB");
+const connection = require("./../data/postDB");
 
 function index(req, res) {
-  const tag = req.query.tag;
+  const sql = "SELECT * FROM posts";
 
-  if (tag) {
-    const newPosts = posts.filter((post) => {
-      return post.tags.includes(tag.toLowerCase());
-    });
-
-    res.json({ posts: newPosts, numeroElementi: newPosts.length });
-  } else res.json({ posts: posts, numeroElementi: posts.length });
+  connection.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: "Database query failed" });
+    res.json(results);
+  });
 }
 
 function show(req, res) {
