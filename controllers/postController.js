@@ -101,23 +101,10 @@ function modify(req, res) {
 function destroy(req, res) {
   const { id } = req.params;
 
-  if (isNaN(id)) {
-    const err = Error("Inserisci un numero");
-    err.code = 400;
-    throw err;
-  }
-
-  const postSelected = posts.find((post) => post.id === parseInt(id));
-
-  if (postSelected) {
-    posts.splice(id, 1);
-    console.log({ postDeleted: postSelected, posts: posts });
-    res.status(204).json();
-  } else {
-    const err = Error("Post non trovato");
-    err.code = 404;
-    throw err;
-  }
+  connection.query("DELETE FROM posts WHERE id = ?", [id], (err) => {
+    if (err) return res.status(500).json({ error: "Failed to delete post" });
+    res.sendStatus(204);
+  });
 }
 
 module.exports = { index, show, store, update, modify, destroy };
