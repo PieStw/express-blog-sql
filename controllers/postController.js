@@ -10,22 +10,14 @@ function index(req, res) {
 }
 
 function show(req, res) {
-  const { id } = req.params;
-
-  if (isNaN(id)) {
-    const err = Error("Inserisci un numero");
-    err.code = 400;
-    throw err;
-  }
-
-  const postSelected = posts.find((post) => post.id === parseInt(id));
-
-  if (postSelected) res.json(postSelected);
-  else {
-    const err = Error("Post non trovato");
-    err.code = 404;
-    throw err;
-  }
+  const id = req.params.id;
+  const sql = "SELECT * FROM posts WHERE id = ?";
+  connection.query(sql, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: "Database query failed" });
+    if (results.length === 0)
+      return res.status(404).json({ error: "Posts not found" });
+    res.json(results[0]);
+  });
 }
 
 function store(req, res) {
